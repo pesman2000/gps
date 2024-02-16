@@ -16,8 +16,8 @@ import com.opqa.gps.permission.Permissions
 
 class MainActivity : AppCompatActivity() {
     private lateinit var permissions: Permissions
-    var googleMaps : GoogleMap? = null
-  /*  private lateinit var mapFragment: MapFragment*/
+    var googleMaps: GoogleMap? = null
+    /*  private lateinit var mapFragment: MapFragment*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,15 +28,14 @@ class MainActivity : AppCompatActivity() {
             this.googleMaps = googleMaps
         }
 
-        permissions = Permissions(this)
+        permissions = Permissions(this@MainActivity, googleMaps)
         permissions.firstRequestPermission()
-        permissions.getUserLocation()
-        permissions.requestLocationUpdates()
-
-       /* mapFragment = MapFragment(this)
-        mapFragment.mapFragment()
-        mapFragment.requestLocationUpdates()
-        mapFragment.getUserLocation()*/
+        permissions.getUserLocation(googleMaps)
+        permissions.requestLocationUpdates(googleMaps)
+        /* mapFragment = MapFragment(this)
+         mapFragment.mapFragment()
+         mapFragment.requestLocationUpdates()
+         mapFragment.getUserLocation()*/
 
     }
 

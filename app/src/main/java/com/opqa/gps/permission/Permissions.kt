@@ -20,19 +20,20 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.opqa.gps.MainActivity
 import com.opqa.gps.R
 
-class Permissions(private val activity: FragmentActivity) {
+class Permissions(private val activity: FragmentActivity, val  googleMaps: GoogleMap?) {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
     private val requestLocationPermission =
         activity.registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
             if (isGranted) {
-                getUserLocation()
+                getUserLocation(googleMaps)
             } else {
                 Toast.makeText(activity, "Permission denied", Toast.LENGTH_SHORT).show()
             }
@@ -83,7 +84,7 @@ class Permissions(private val activity: FragmentActivity) {
     }
 
     @SuppressLint("MissingPermission")
-    fun requestLocationUpdates(){
+    fun requestLocationUpdates(googleMaps: GoogleMap?){
         val locationUpdate = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY,3000).build()
         val callback = object : LocationCallback(){
             override fun onLocationResult(locationResult: LocationResult) {
@@ -91,28 +92,31 @@ class Permissions(private val activity: FragmentActivity) {
                 Log.e("LOCATION TAG", "onLocationResult: ${locationResult.lastLocation?.latitude}")
                 updateUserLocationMarker(
                     locationResult.lastLocation?.latitude ?: 0.0 ,
-                    locationResult.lastLocation?.longitude ?: 0.0
+                    locationResult.lastLocation?.longitude ?: 0.0,
+                    googleMaps
                 )
             }
         }
         fusedLocationProviderClient.requestLocationUpdates(locationUpdate , callback , Looper.getMainLooper())
     }
     @SuppressLint("MissingPermission")
-    fun getUserLocation() {
+    fun getUserLocation(googleMaps: GoogleMap?) {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(activity)
         val request = CurrentLocationRequest.Builder().setPriority(Priority.PRIORITY_HIGH_ACCURACY).setDurationMillis(300).build()
         fusedLocationProviderClient.getCurrentLocation(request , null).addOnSuccessListener { location ->
 
         }
-        requestLocationUpdates()
+        //   fun add(num1 : Int, num2 : Int)
+        requestLocationUpdates(googleMaps =googleMaps )
     }
 
-    fun updateUserLocationMarker(latitude : Double , longitude : Double){
+    fun updateUserLocationMarker(latitude : Double , longitude : Double, googleMaps: GoogleMap?){
         val options = MarkerOptions()
         options.position(LatLng(latitude , longitude))
         options.icon(BitmapDescriptorFactory.fromResource(R.drawable.wheel))
         Log.e("PIC TAG", "updateUserLocationMarker: ${options.icon}")
-        MainActivity().googleMaps?.addMarker(options)
+        Log.e("TAG", "updateUserLocationMarker: Google maps -> $googleMaps", )
+       googleMaps?.addMarker(options)
     }
 
 
